@@ -51,7 +51,27 @@ app.get('/users/register', (req, res) => {
 // 註冊檢查
 app.post('/users/register', (req, res) => {
   const { name, email, password, confirmPassword } = req.body
-  User.create({ name, email, password })
+  User.findOne({ where: { email } }).then(user => {
+    if (user) {
+      console.log('User already exists.')
+      return res.render('register', {
+        name,
+        email,
+        password,
+        confirmPassword
+      })
+    }
+    return bcrypt
+      .genSalt(10)
+      .then(salt => bcrypt.hash(password, salt))
+      .then(hash => User.create({
+        name,
+        email,
+        password: hash
+      }))
+      .then(() => res.redirect('/'))
+      .catch(error => console.log(error))
+  })
     .then(user => res.redirect('/'))
 })
 
