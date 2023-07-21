@@ -17,7 +17,12 @@ app.use(methodOverride('_method'))
 // 設定路由
 // 首頁
 app.get('/', (req, res) => {
-  res.send('hello world')
+  return Todo.findAll({
+    raw: true,
+    nest: true
+  })
+    .then((todos) => { return res.render('index', { todos: todos })})
+    .catch((error) => { return res.status(422).json(error)})
 })
 
 // 認證系統的路由
